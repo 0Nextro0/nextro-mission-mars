@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#100b13">
+<title>NEXTRO — Ares: The Last Outpost</title>
+<style>
+:root{--gold:#ffb35c;--cyan:#73e6e9;--ink:#090b12;--panel:rgba(13,17,27,.88)}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#090b12;color:#eef5f7;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;touch-action:none}
+#game{position:fixed;inset:0;width:100%;height:100%;display:block}
+.vignette{position:fixed;inset:0;pointer-events:none;background:radial-gradient(ellipse at center,transparent 45%,rgba(0,0,0,.48) 100%)}
+.top{position:fixed;top:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none}
+.brand{font-weight:900;letter-spacing:.16em;font-size:12px;color:var(--gold);text-shadow:0 2px 15px #000}.brand span{display:block;color:#eaf2f2;font-size:10px;letter-spacing:.28em;margin-top:3px}
+.stats{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.stat{background:rgba(7,11,18,.78);border:1px solid #ffffff24;border-radius:9px;padding:7px 9px;min-width:76px;backdrop-filter:blur(8px);box-shadow:0 4px 20px #0006}.stat small{display:block;color:#9baeb8;font-size:9px;letter-spacing:.13em}.stat b{font-size:14px}.bar{height:4px;background:#34404a;border-radius:5px;margin-top:5px;overflow:hidden}.bar i{display:block;height:100%;background:var(--cyan);width:100%;transition:width .2s}
+.mission{position:fixed;left:14px;top:92px;width:min(290px,46vw);padding:12px 14px;background:var(--panel);border:1px solid #ffffff20;border-left:3px solid var(--gold);border-radius:10px;backdrop-filter:blur(8px);pointer-events:none}.eyebrow{font-size:9px;color:var(--gold);letter-spacing:.2em;font-weight:800}.mission h2{font-size:14px;margin:5px 0}.mission p{font-size:11px;line-height:1.45;color:#bdcbd0;margin:0}.objective{font-size:10px;color:var(--cyan);margin-top:8px}
+#toast{position:fixed;left:50%;top:22%;transform:translate(-50%,-10px);opacity:0;background:#0c1720ed;border:1px solid #74dfe7;border-radius:9px;padding:11px 16px;font-size:12px;transition:.25s;pointer-events:none;text-align:center;max-width:85vw}#toast.show{opacity:1;transform:translate(-50%,0)}
+.bottom{position:fixed;bottom:14px;left:14px;right:14px;display:flex;justify-content:space-between;align-items:end;pointer-events:none}
+.hint{background:#090e17b8;border:1px solid #ffffff20;border-radius:8px;padding:8px 10px;color:#aebdc3;font-size:10px;max-width:46vw}
+.controls{display:flex;gap:9px;align-items:end;pointer-events:auto}.stick{width:116px;height:116px;border-radius:50%;background:#111b27a8;border:1px solid #b6d5dc55;position:relative;touch-action:none;box-shadow:inset 0 0 25px #0008}.stick:after{content:"";position:absolute;inset:35px;border:1px solid #ffffff20;border-radius:50%}.knob{position:absolute;width:42px;height:42px;border-radius:50%;background:linear-gradient(145deg,#d7edf0,#637f8a);box-shadow:0 4px 14px #0009;left:36px;top:36px}
+.actions{display:grid;grid-template-columns:repeat(2,58px);gap:7px}.act{width:58px;height:48px;border-radius:10px;border:1px solid #ffffff35;background:#121d29d9;color:#eaf6f7;font-size:9px;font-weight:800;letter-spacing:.06em}.act.primary{border-color:#e8a85d;background:#6e3d22d9;color:#ffe0b4}.act:active{transform:scale(.96)}
+.iconbtn{pointer-events:auto;background:#101925c9;color:#eaf2f4;border:1px solid #ffffff35;border-radius:8px;padding:8px 10px;font-size:10px}
+.overlay{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:linear-gradient(120deg,#080b12dd,#130c10c9);backdrop-filter:blur(8px);z-index:5}.card{width:min(540px,94vw);max-height:90vh;overflow:auto;background:linear-gradient(145deg,#17202bfa,#0a1019fa);border:1px solid #ffffff2a;border-radius:18px;padding:clamp(20px,5vw,34px);box-shadow:0 25px 100px #000b}.logo{font-size:11px;color:var(--gold);font-weight:900;letter-spacing:.28em}.card h1{font-size:clamp(30px,7vw,54px);line-height:.96;margin:12px 0 8px;letter-spacing:-.05em}.card h1 em{font-style:normal;color:var(--gold)}.sub{color:#b9c8ce;line-height:1.6;font-size:13px}.tag{display:inline-block;border:1px solid #6de0df55;color:#8be5e2;border-radius:30px;padding:5px 9px;font-size:9px;letter-spacing:.15em;margin:8px 5px 8px 0}.mainbtn{width:100%;padding:14px;border:0;border-radius:9px;background:linear-gradient(100deg,#f5a54e,#ffd18b);color:#1a1511;font-weight:900;letter-spacing:.1em;margin-top:16px}.secondary{background:#182634;color:#eaf5f5;border:1px solid #ffffff2c;margin-top:8px}.gridinfo{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:15px}.info{background:#ffffff08;border:1px solid #ffffff16;border-radius:9px;padding:10px}.info b{display:block;font-size:11px;color:#f3bd79;margin-bottom:4px}.info span{font-size:10px;color:#aebfc5;line-height:1.4}.hidden{display:none!important}
+#maplabel{position:fixed;right:14px;top:94px;color:#c4d2d4;font-size:9px;letter-spacing:.12em;text-align:right;text-shadow:0 2px 8px #000}
+@media(max-width:650px){.mission{top:102px;width:205px;padding:9px}.mission h2{font-size:12px}.mission p{font-size:10px}.stat{min-width:61px;padding:6px}.stat b{font-size:12px}.stat small{font-size:8px}.hint{display:none}.stick{width:100px;height:100px}.knob{left:29px;top:29px}.actions{grid-template-columns:repeat(2,52px)}.act{width:52px;height:43px}.top{top:9px;left:9px;right:9px}.bottom{bottom:9px;left:9px;right:9px}}
+</style>
+</head>
+<body>
+<canvas id="game"></canvas><div class="vignette"></div>
+<div class="top"><div class="brand">NEXTRO<span>DEEP SPACE FIELD SYSTEMS</span></div><div class="stats">
+ <div class="stat"><small>OXYGEN</small><b id="oxy">100%</b><div class="bar"><i id="oxybar"></i></div></div>
+ <div class="stat"><small>SUIT POWER</small><b id="power">100%</b><div class="bar"><i id="powerbar"></i></div></div>
+ <div class="stat"><small>MISSION TIME</small><b id="time">00:00</b></div>
+</div></div>
+<section class="mission"><div class="eyebrow">ARES-07 / FIELD OBJECTIVE</div><h2 id="missionTitle">Restore the outpost</h2><p id="missionText">The habitat has lost power. Reach the damaged solar array and bring the outpost back online.</p><div class="objective" id="objective">◇ Locate the solar array · 0/1</div></section>
+<div id="maplabel">MARS // UTOPIA PLANITIA<br>SECTOR 07 • 18.6° N</div>
+<div class="bottom"><div class="hint">MOVE: WASD / ARROWS · INTERACT: E / SPACE<br>Mobile: use the left stick and action buttons.</div><div class="controls">
+ <div class="stick" id="stick"><div class="knob" id="knob"></div></div>
+ <div class="actions"><button class="act primary" id="interact">INTERACT</button><button class="act" id="scan">SCAN</button><button class="act" id="jump">HOP</button><button class="act" id="pause">PAUSE</button></div>
+</div></div>
+<div id="toast"></div>
+<div class="overlay" id="menu"><div class="card">
+ <div class="logo">NEXTRO PRESENTS · AN INTERACTIVE MARS EXPEDITION</div>
+ <h1>ARES:<br><em>THE LAST</em><br>OUTPOST</h1>
+ <p class="sub">A lone astronaut. A failing habitat. One chance to bring a research outpost back to life. Explore the Martian surface, scan geological evidence, restore power and make it home before your suit runs out.</p>
+ <span class="tag">EXPLORATION</span><span class="tag">SURVIVAL SYSTEMS</span><span class="tag">SCIENCE MISSIONS</span>
+ <div class="gridinfo"><div class="info"><b>01 / RESTORE</b><span>Find and repair the solar array to reactivate the habitat.</span></div><div class="info"><b>02 / DISCOVER</b><span>Scan three scientifically inspired rock formations.</span></div><div class="info"><b>03 / SURVIVE</b><span>Watch oxygen and suit power as you cross the terrain.</span></div><div class="info"><b>04 / RETURN</b><span>Reach the habitat beacon to complete the expedition.</span></div></div>
+ <button class="mainbtn" id="start">BEGIN EXPEDITION</button><p class="sub" style="font-size:10px;margin-bottom:0">Fictional game simulation for learning. Mars conditions and resource rates are simplified, not operational astronaut guidance.</p>
+ </div></div>
+<div class="overlay hidden" id="pauseScreen"><div class="card"><div class="logo">MISSION CONTROL</div><h1>MISSION<br><em>PAUSED</em></h1><p class="sub">Your expedition is on hold. Suit systems are safe while paused.</p><button class="mainbtn" id="resume">RESUME MISSION</button><button class="mainbtn secondary" id="restart">RESTART EXPEDITION</button></div></div>
+<div class="overlay hidden" id="endScreen"><div class="card"><div class="logo">MISSION CONTROL · FINAL REPORT</div><h1 id="endTitle">OUTPOST<br><em>RESTORED</em></h1><p class="sub" id="endText"></p><div class="gridinfo"><div class="info"><b>SCIENCE DATA</b><span id="endScans">0 / 3 scans</span></div><div class="info"><b>POWER SYSTEM</b><span id="endPower">Not restored</span></div><div class="info"><b>EXPEDITION TIME</b><span id="endTime">00:00</span></div><div class="info"><b>FIELD RATING</b><span id="endScore">—</span></div></div><button class="mainbtn" id="again">PLAY AGAIN</button></div></div>
+<script>
+(()=>{
+'use strict';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+let W=0,H=0,D=1,cam={x:0,y:0},last=0,elapsed=0,active=false,paused=false,finished=false;
+const world={w:2600,h:1900};
+const player={x:330,y:390,vx:0,vy:0,dir:0,step:0,hp:100,oxygen:100,power:100,hop:0};
+const base={x:330,y:390,r:95},array={x:1980,y:430,r:82,repaired:false};
+const rocks=[{x:770,y:500,r:27,c:0},{x:1040,y:1120,r:34,c:1},{x:1640,y:820,r:29,c:2},{x:2130,y:1280,r:39,c:0},{x:480,y:1420,r:30,c:1},{x:1450,y:300,r:22,c:2},{x:2250,y:700,r:31,c:1}];
+const samples=[{x:830,y:520,done:false,name:'Layered basalt'},{x:1120,y:1090,done:false,name:'Iron-rich regolith'},{x:1660,y:790,done:false,name:'Ancient sediment'}];
+const dunes=Array.from({length:180},(_,i)=>({x:(i*173+51)%world.w,y:(i*293+83)%world.h,r:18+(i*19)%70,a:.025+(i%5)*.012}));
+const dust=Array.from({length:100},()=>({x:Math.random()*world.w,y:Math.random()*world.h,s:.4+Math.random()*1.8,a:.12+Math.random()*.35}));
+const keys={};let stick={x:0,y:0,on:false};let objective=0;let toastTimer=0;let scanPulse=0;
+function resize(){D=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;canvas.width=W*D;canvas.height=H*D;ctx.setTransform(D,0,0,D,0,0)}
+addEventListener('resize',resize);resize();
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));const dist=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
+function say(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('show');toastTimer=2.4}
+function fmt(s){return String(Math.floor(s/60)).padStart(2,'0')+':'+String(Math.floor(s%60)).padStart(2,'0')}
+function updateHud(){document.getElementById('oxy').textContent=Math.ceil(player.oxygen)+'%';document.getElementById('power').textContent=Math.ceil(player.power)+'%';document.getElementById('oxybar').style.width=player.oxygen+'%';document.getElementById('powerbar').style.width=player.power+'%';document.getElementById('time').textContent=fmt(elapsed);
+ let title='Restore the outpost',text='Reach the damaged solar array and bring the outpost back online.',obj='◇ Locate the solar array · '+(array.repaired?'1/1':'0/1');
+ if(array.repaired){title='Collect science data';text='Scan the three highlighted geological formations. Each scan adds evidence to the mission log.';obj='◇ Geological scans · '+samples.filter(s=>s.done).length+'/3'}
+ if(samples.every(s=>s.done)){title='Return to the habitat';text='All field samples secured. Return to the habitat beacon to transmit your findings.';obj='◇ Return to habitat beacon'}
+ document.getElementById('missionTitle').textContent=title;document.getElementById('missionText').textContent=text;document.getElementById('objective').textContent=obj}
+function worldToScreen(x,y){return{x:x-cam.x,y:y-cam.y}}
+function path(x,y,r){ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2)}
+function drawGround(){
+ ctx.fillStyle='#9b4e32';ctx.fillRect(0,0,W,H);
+ // layered Martian terrain with broad shaded elevation fields
+ for(let i=0;i<dunes.length;i++){let d=dunes[i],p=worldToScreen(d.x,d.y);if(p.x<-100||p.x>W+100||p.y<-100||p.y>H+100)continue;
+ let g=ctx.createRadialGradient(p.x-d.r*.25,p.y-d.r*.3,2,p.x,p.y,d.r*1.5);g.addColorStop(0,'rgba(237,142,91,'+(d.a*1.8)+')');g.addColorStop(1,'rgba(65,25,23,0)');ctx.fillStyle=g;path(p.x,p.y,d.r*1.5);ctx.fill()}
+ // distant ridges
+ ctx.save();ctx.globalAlpha=.2;for(let i=0;i<9;i++){let y=(i*271-cam.y*.18)% (H+300)-100;ctx.fillStyle=i%2?'#592b28':'#d27a51';ctx.beginPath();ctx.moveTo(0,y+100);for(let x=0;x<=W+40;x+=40)ctx.lineTo(x,y+Math.sin(x*.009+i)*28+Math.cos(x*.021)*13);ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.fill()}ctx.restore();
+ // fine pebbles
+ for(let i=0;i<260;i++){let x=(i*97+13)%world.w,y=(i*157+61)%world.h,p=worldToScreen(x,y);if(p.x<0||p.x>W||p.y<0||p.y>H)continue;ctx.fillStyle=i%3?'#4b2825aa':'#f0a06a88';path(p.x,p.y,1+(i%3));ctx.fill()}
+}
+function drawRock(r){let p=worldToScreen(r.x,r.y);if(p.x<-100||p.x>W+100||p.y<-100||p.y>H+100)return;ctx.save();ctx.translate(p.x,p.y);ctx.rotate((r.x+r.y)*.003);ctx.shadowColor='#321814';ctx.shadowBlur=16;ctx.shadowOffsetY=9;let g=ctx.createLinearGradient(-r.r,-r.r,r.r,r.r);g.addColorStop(0,'#c47b58');g.addColorStop(.45,'#713d32');g.addColorStop(1,'#3b2929');ctx.fillStyle=g;ctx.beginPath();ctx.moveTo(-r.r,-r.r*.25);ctx.lineTo(-r.r*.35,-r.r);ctx.lineTo(r.r*.65,-r.r*.72);ctx.lineTo(r.r,r.r*.1);ctx.lineTo(r.r*.35,r.r*.82);ctx.lineTo(-r.r*.6,r.r*.65);ctx.closePath();ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#e9a07866';ctx.lineWidth=2;ctx.stroke();ctx.restore()}
+function drawBeacon(x,y,color,label,r=55){let p=worldToScreen(x,y),pulse=1+Math.sin(elapsed*2.4)*.08;ctx.save();ctx.translate(p.x,p.y);ctx.strokeStyle=color;ctx.globalAlpha=.55;ctx.lineWidth=2;ctx.setLineDash([5,7]);path(0,0,r*pulse);ctx.stroke();ctx.setLineDash([]);ctx.globalAlpha=.12;ctx.fillStyle=color;path(0,0,r*pulse);ctx.fill();ctx.globalAlpha=1;ctx.fillStyle=color;ctx.font='bold 9px system-ui';ctx.textAlign='center';ctx.fillText(label,0,-r-10);ctx.restore()}
+function drawHabitat(){let p=worldToScreen(base.x,base.y);ctx.save();ctx.translate(p.x,p.y);ctx.shadowColor='#000';ctx.shadowBlur=25;ctx.shadowOffsetY=13;
+ // habitat modules
+ ctx.fillStyle='#8c9ca1';ctx.strokeStyle='#dce6df';ctx.lineWidth=2;ctx.beginPath();ctx.ellipse(0,0,72,42,0,0,Math.PI*2);ctx.fill();ctx.stroke();ctx.shadowBlur=0;ctx.fillStyle='#263e4b';ctx.beginPath();ctx.ellipse(-9,-5,43,23,0,0,Math.PI*2);ctx.fill();ctx.fillStyle='#8ee3e2';ctx.globalAlpha=.65;ctx.fillRect(-35,-12,22,13);ctx.fillRect(-7,-12,22,13);ctx.globalAlpha=1;
+ ctx.strokeStyle='#b8c8ca';ctx.lineWidth=6;ctx.beginPath();ctx.moveTo(48,4);ctx.lineTo(78,4);ctx.stroke();ctx.fillStyle='#d9e4e1';ctx.fillRect(69,-12,24,27);ctx.fillStyle='#f6b45e';ctx.fillRect(76,-8,8,8);
+ // antenna
+ ctx.strokeStyle='#d5dedb';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(-46,-26);ctx.lineTo(-58,-58);ctx.stroke();ctx.fillStyle='#f4bb6e';path(-58,-60,5);ctx.fill();
+ ctx.restore();drawBeacon(base.x,base.y,'#79e9dc','HABITAT / HOME',100)}
+function drawSolar(){let p=worldToScreen(array.x,array.y);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(-.12);ctx.shadowColor='#000';ctx.shadowBlur=20;ctx.shadowOffsetY=9;
+ for(let k=0;k<2;k++){ctx.fillStyle=array.repaired?'#1b6575':'#203a50';ctx.strokeStyle=array.repaired?'#8be8e6':'#b6cbd1';ctx.lineWidth=2;ctx.fillRect(-105+k*120,-28,96,56);ctx.strokeRect(-105+k*120,-28,96,56);ctx.shadowBlur=0;ctx.strokeStyle='#74b9c4';ctx.lineWidth=1;for(let i=1;i<4;i++){ctx.beginPath();ctx.moveTo(-105+k*120+i*24,-28);ctx.lineTo(-105+k*120+i*24,28);ctx.stroke()}ctx.beginPath();ctx.moveTo(-105+k*120,-1);ctx.lineTo(-9+k*120,-1);ctx.stroke()}
+ ctx.fillStyle='#c1d0cd';ctx.fillRect(-14,-8,28,16);ctx.fillStyle=array.repaired?'#8af2d7':'#e66b4b';path(0,0,7);ctx.fill();ctx.restore();if(!array.repaired)drawBeacon(array.x,array.y,'#ffbd70','DAMAGED ARRAY',120)}
+function drawSample(s,i){if(s.done)return;let p=worldToScreen(s.x,s.y);ctx.save();ctx.translate(p.x,p.y);ctx.rotate(Math.sin(elapsed+i)*.1);ctx.shadowColor='#000';ctx.shadowBlur=12;ctx.fillStyle=['#8e9c91','#c17b50','#7e8a8b'][i];ctx.beginPath();ctx.moveTo(-13,8);ctx.lineTo(-8,-12);ctx.lineTo(5,-17);ctx.lineTo(15,-2);ctx.lineTo(9,12);ctx.closePath();ctx.fill();ctx.shadowBlur=0;ctx.strokeStyle='#9df2e7';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,24+Math.sin(elapsed*3)*2,0,Math.PI*2);ctx.stroke();ctx.fillStyle='#c6fff3';ctx.font='bold 8px system-ui';ctx.textAlign='center';ctx.fillText('SCAN',0,-30);ctx.restore()}
+function drawAstronaut(){let p=worldToScreen(player.x,player.y),bob=Math.sin(player.step)*2+(player.hop>0?-player.hop*12:0);ctx.save();ctx.translate(p.x,p.y+bob);ctx.rotate(player.dir);ctx.shadowColor='#1d0f0d';ctx.shadowBlur=13;ctx.shadowOffsetY=7;
+ // backpack
+ ctx.fillStyle='#52616a';ctx.fillRect(-17,-10,13,23);ctx.fillStyle='#e5e8df';ctx.beginPath();ctx.ellipse(0,0,15,20,0,0,Math.PI*2);ctx.fill();ctx.shadowBlur=0;
+ // suit details
+ ctx.fillStyle='#d28d51';ctx.fillRect(-9,5,18,7);ctx.fillStyle='#5c7983';ctx.beginPath();ctx.ellipse(2,-7,10,9,0,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#bde9e8';ctx.lineWidth=2;ctx.stroke();
+ ctx.fillStyle='#f6bd6d';ctx.fillRect(-8,12,7,8);ctx.fillRect(5,12,7,8);
+ ctx.restore(); // headlamp cone
+ let cone=worldToScreen(player.x,player.y);ctx.save();ctx.globalAlpha=.09;ctx.fillStyle='#fff0b8';ctx.beginPath();ctx.moveTo(cone.x,cone.y);ctx.arc(cone.x,cone.y,155,player.dir-.35,player.dir+.35);ctx.closePath();ctx.fill();ctx.restore()}
+function drawDust(dt){ctx.save();for(let d of dust){d.x-=dt*(12+d.s*13);d.y+=dt*(2+d.s*2);if(d.x<0)d.x=world.w;if(d.y>world.h)d.y=0;let p=worldToScreen(d.x,d.y);if(p.x<0||p.x>W||p.y<0||p.y>H)continue;ctx.globalAlpha=d.a;ctx.strokeStyle='#ffd0a2';ctx.lineWidth=d.s;ctx.beginPath();ctx.moveTo(p.x,p.y);ctx.lineTo(p.x-12*d.s,p.y+2*d.s);ctx.stroke()}ctx.restore()}
+function render(dt){ctx.clearRect(0,0,W,H);cam.x=clamp(player.x-W/2,0,world.w-W);cam.y=clamp(player.y-H/2,0,world.h-H);drawGround();drawHabitat();drawSolar();rocks.forEach(drawRock);samples.forEach(drawSample);drawAstronaut();drawDust(dt);
+ if(scanPulse>0){scanPulse-=dt;let p=worldToScreen(player.x,player.y);ctx.strokeStyle='#7ce9df';ctx.globalAlpha=scanPulse;ctx.lineWidth=3;path(p.x,p.y,170*(1-scanPulse/1.2));ctx.stroke();ctx.globalAlpha=1}
+}
+function interact(){if(!active||paused||finished)return;
+ if(!array.repaired&&dist(player,array)<145){array.repaired=true;player.power=Math.min(100,player.power+18);say('SOLAR ARRAY ONLINE · Habitat power restored.');updateHud();return}
+ if(array.repaired){let nearest=samples.filter(s=>!s.done).sort((a,b)=>dist(player,a)-dist(player,b))[0];if(nearest&&dist(player,nearest)<80){nearest.done=true;player.power=Math.max(0,player.power-2);say('SAMPLE LOGGED · '+nearest.name);updateHud();if(samples.every(s=>s.done))say('ALL SCIENCE DATA SECURED · Return to habitat.');return}}
+ if(samples.every(s=>s.done)&&dist(player,base)<145){finish(true);return}
+ if(dist(player,base)<130){say('Habitat beacon active. Your return point is secure.');return}
+ say('Nothing to interact with here. Follow the objective marker.')}
+function scan(){if(!active||paused||finished)return;scanPulse=1.2;let near=samples.find(s=>!s.done&&dist(player,s)<190);if(near)say('SCAN: '+near.name+' · Move closer and INTERACT to collect.');else if(!array.repaired&&dist(player,array)<230)say('SCAN: Solar array damage detected. Move closer and INTERACT.');else say('SCAN PULSE · No target in range. Look for glowing field markers.')}
+function finish(success){finished=true;active=false;const score=Math.max(0,Math.round(100*(samples.filter(s=>s.done).length/3)*(.65+player.oxygen/300+player.power/500)));document.getElementById('endTitle').innerHTML=success?'OUTPOST<br><em>RESTORED</em>':'SIGNAL<br><em>LOST</em>';document.getElementById('endText').textContent=success?'You restored the outpost, documented three geological samples and returned safely. Mission Control has received the field report.':'Your suit resources were depleted before the expedition was complete. The field report is incomplete.';document.getElementById('endScans').textContent=samples.filter(s=>s.done).length+' / 3 samples';document.getElementById('endPower').textContent=array.repaired?'Solar array restored':'Not restored';document.getElementById('endTime').textContent=fmt(elapsed);document.getElementById('endScore').textContent=score+'/100 · '+(score>85?'EXCELLENT':score>65?'GOOD':'NEEDS REVIEW');document.getElementById('endScreen').classList.remove('hidden')}
+function reset(){player.x=330;player.y=390;player.vx=player.vy=0;player.dir=0;player.step=0;player.oxygen=100;player.power=100;player.hop=0;array.repaired=false;samples.forEach(s=>s.done=false);elapsed=0;finished=false;paused=false;active=true;document.getElementById('menu').classList.add('hidden');document.getElementById('pauseScreen').classList.add('hidden');document.getElementById('endScreen').classList.add('hidden');updateHud();say('EXPEDITION STARTED · Reach the damaged solar array.')}
+function togglePause(){if(!active||finished)return;paused=!paused;document.getElementById('pauseScreen').classList.toggle('hidden',!paused)}
+function move(dt){let x=(keys.d||keys.ArrowRight?1:0)-(keys.a||keys.ArrowLeft?1:0)+stick.x,y=(keys.s||keys.ArrowDown?1:0)-(keys.w||keys.ArrowUp?1:0)+stick.y;let mag=Math.hypot(x,y);if(mag>1){x/=mag;y/=mag}const speed=150;player.vx+=(x*speed-player.vx)*Math.min(1,dt*9);player.vy+=(y*speed-player.vy)*Math.min(1,dt*9);player.x=clamp(player.x+player.vx*dt,55,world.w-55);player.y=clamp(player.y+player.vy*dt,55,world.h-55);if(Math.hypot(player.vx,player.vy)>8){player.dir=Math.atan2(player.vy,player.vx)+Math.PI/2;player.step+=dt*10}
+ player.hop=Math.max(0,player.hop-dt*2.5);
+}
+function tick(t){let dt=Math.min(.04,(t-last)/1000||0);last=t;if(active&&!paused&&!finished){elapsed+=dt;move(dt);player.oxygen=Math.max(0,player.oxygen-dt*.13);player.power=Math.max(0,player.power-dt*.075);if(player.oxygen<=0||player.power<=0)finish(false);if(toastTimer>0){toastTimer-=dt;if(toastTimer<=0)document.getElementById('toast').classList.remove('show')}updateHud()}render(dt);requestAnimationFrame(tick)}
+requestAnimationFrame(tick);
+addEventListener('keydown',e=>{keys[e.key]=true;if([' ','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key))e.preventDefault();if(e.key.toLowerCase()==='e'||e.key===' ')interact();if(e.key.toLowerCase()==='f')scan();if(e.key==='Escape')togglePause()});
+addEventListener('keyup',e=>keys[e.key]=false);
+document.getElementById('start').onclick=reset;document.getElementById('interact').onclick=interact;document.getElementById('scan').onclick=scan;document.getElementById('pause').onclick=togglePause;document.getElementById('resume').onclick=togglePause;document.getElementById('restart').onclick=reset;document.getElementById('again').onclick=reset;document.getElementById('jump').onclick=()=>{if(active&&!paused){player.hop=1;say('LOW-G HOP')}}; 
+const stickEl=document.getElementById('stick'),knob=document.getElementById('knob');let pointer=null;
+function setStick(e){let r=stickEl.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2,dx=e.clientX-cx,dy=e.clientY-cy,len=Math.hypot(dx,dy),max=34;if(len>max){dx=dx/len*max;dy=dy/len*max}stick.x=dx/max;stick.y=dy/max;knob.style.transform=`translate(${dx}px,${dy}px)`}
+stickEl.addEventListener('pointerdown',e=>{pointer=e.pointerId;stickEl.setPointerCapture(pointer);stick.on=true;setStick(e)});
+stickEl.addEventListener('pointermove',e=>{if(pointer===e.pointerId)setStick(e)});
+function release(e){if(pointer===e.pointerId){pointer=null;stick.x=stick.y=0;stick.on=false;knob.style.transform='translate(0,0)'}}
+stickEl.addEventListener('pointerup',release);stickEl.addEventListener('pointercancel',release);
+updateHud();
+})();
+</script>
+</body></html>
